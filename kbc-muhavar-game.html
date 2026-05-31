@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaun Banega Muhavare King!</title>
+    <style>
+        :root {
+            --primary-bg: #0c1033;
+            --secondary-bg: #161d6f;
+            --accent-gold: #ffd700;
+            --accent-blue: #00bfff;
+            --correct-green: #28a745;
+            --wrong-red: #dc3545;
+            --text-white: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle, var(--secondary-bg) 0%, var(--primary-bg) 100%);
+            color: var(--text-white);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 850px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 3px solid var(--accent-gold);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            box-sizing: border-box;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--accent-blue);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo-title {
+            color: var(--accent-gold);
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px #000;
+            margin: 0;
+        }
+
+        .stats {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--accent-blue);
+            margin-left: 10px;
+            display: inline-block;
+        }
+
+        #lifelines-container {
+            margin-bottom: 15px;
+            text-align: right;
+        }
+
+        .lifeline-btn {
+            background: linear-gradient(145deg, #1e297a, #0f1547);
+            color: var(--accent-gold);
+            border: 2px solid var(--accent-gold);
+            padding: 8px 15px;
+            margin-left: 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .lifeline-btn:hover:not(:disabled) {
+            background: var(--accent-gold);
+            color: var(--primary-bg);
+            box-shadow: 0 0 10px var(--accent-gold);
+        }
+
+        .lifeline-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: #666;
+            color: #666;
+        }
+
+        #visual-area {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .muhavare-img {
+            max-width: 100%;
+            height: 220px;
+            border-radius: 10px;
+            border: 2px solid var(--text-white);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        #question-box {
+            background: linear-gradient(90deg, rgba(16,29,111,0.8) 0%, rgba(12,16,51,0.9) 50%, rgba(16,29,111,0.8) 100%);
+            border: 2px solid var(--accent-blue);
+            border-radius: 30px;
+            padding: 15px 25px;
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 25px;
+            box-shadow: inset 0 0 15px rgba(0, 191, 255, 0.5);
+        }
+
+        #options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 100%);
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* KBC Style Diamond/Hexagon shape feel via grid */
+        @media (min-width: 600px) {
+            #options-grid {
+                grid-template-columns: repeat(2, 48%);
+            }
+        }
+
+        .option-btn {
+            background: linear-gradient(90deg, #101d6f 0%, #0c1033 100%);
+            border: 2px solid var(--accent-blue);
+            color: white;
+            padding: 15px 20px;
+            font-size: 18px;
+            text-align: left;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-prefix {
+            color: var(--accent-gold);
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: linear-gradient(90deg, #1e35c4 0%, #161d6f 100%);
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .option-btn.selected {
+            background: orange !important;
+            color: black;
+            border-color: white;
+        }
+
+        .option-btn.correct {
+            background: var(--correct-green) !important;
+            border-color: white;
+            animation: blink 0.3s ease 3;
+        }
+
+        .option-btn.wrong {
+            background: var(--wrong-red) !important;
+            border-color: white;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        #result-screen {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .restart-btn {
+            background: var(--accent-gold);
+            color: var(--primary-bg);
+            border: none;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 25px;
+            box-shadow: 0 5px 15px rgba(255,215,0,0.4);
+            transition: 0.2s;
+        }
+
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <header>
+            <div class="logo-title">Kaun Banega Muhavare King 👑</div>
+            <div class="stats">
+                <span class="stat-box">प्रश्न: <span id="current-q">1</span>/10</span>
+                <span class="stat-box">अंक: <span id="score">0</span></span>
+            </div>
+        </header>
+
+        <div id="lifelines-container">
+            <button id="lifeline-5050" class="lifeline-btn" onclick="use5050()">50-50</button>
+            <button id="lifeline-skip" class="lifeline-btn" onclick="useSkip()">Skip Question</button>
+        </div>
+
+        <div id="quiz-view">
+            <div id="visual-area">
+                <img id="question-image" class="muhavare-img" src="" alt="Muhavare Clue">
+            </div>
+
+            <div id="question-box">
+                इस चित्र को देखकर सही मुहावरा पहचानिए।
+            </div>
+
+            <div id="options-grid">
+                <button class="option-btn" onclick="checkAnswer(0)"><span class="option-prefix">A:</span> <span class="opt-text"></span></button>
+                <button class="option-btn" onclick="checkAnswer(1)"><span class="option-prefix">B:</span> <span class="opt-text"></span></button>
+                <button class="option-btn" onclick="checkAnswer(2)"><span class="option-prefix">C:</span> <span class="opt-text"></span></button>
+                <button class="option-btn" onclick="checkAnswer(3)"><span class="option-prefix">D:</span> <span class="opt-text"></span></button>
+            </div>
+        </div>
+
+        <div id="result-screen" style="display: none;">
+            <h2>खेल समाप्त! (Game Over)</h2>
+            <p style="font-size: 24px; margin: 20px 0;">आपका कुल स्कोर: <span id="final-score" style="color: var(--accent-gold); font-weight: bold;">0</span> अंक</p>
+            <p id="performance-msg" style="font-size: 18px; color: var(--accent-blue);"></p>
+            <button class="restart-btn" onclick="restartGame()">फिर से खेलें 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // High-Quality Custom Dynamic SVG Artworks representing each idiom
+        // This completely avoids broken local asset links or cross-origin issues.
+        const svgImages = {
+            9211: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="220" viewBox="0 0 400 220"><rect width="100%" height="100%" fill="%23222"/><text x="60" y="130" font-family="Arial" font-size="70" fill="%23ff4444" font-weight="bold">9 + 2 = 11</text><path d="M260 130 L310 90 L290 140 M310 90 L340 120" stroke="%2300ff00" stroke-width="8" fill="none"/><text x="270" y="170" fill="white" font-size="16">Fast Running/Escape</text></svg>`,
+            tara: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="220" viewBox="0 0 400 220"><rect width="100%" height="100%" fill="%23050b24"/><circle cx="200" cy="110" r="40" fill="%23ffdd55"/><path d="M200 20 L200 200 M110 110 L290 110" stroke="%23ffdd55" stroke-width="4"/><circle cx="200" cy="110" r="15" fill="%23ff3333"/><text x="140" y="190" fill="white" font-size="20">आँखों का तारा</text></svg>`,
+            bhais: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="220" viewBox="0 0 400 220"><rect width="100%" height="100%" fill="%234a3525"/><circle cx="120" cy="120" r="50" fill="%23111"/><rect x="230" y="60" width="100" height="110" fill="%23ffd700" rx="10"/><text x="255" y="125" font-size="50">📖</text><text x="70" y="125" font-size="40">🐂</text><text x="180" y="120" font-size="30" fill="white">🎨</text></svg>`,
+            eid: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="220" viewBox="0 0 400 220"><rect width="100%" height="100%" fill="%230d233a"/><path d="M80 150 Q160 50 240 150 Q170 80 80 150 Z" fill="%23fff5cc"/><circle cx="280" cy="80" r="15" fill="%23ffdd55"/><text x="250" y="130" fill="white" font-size="16">बहुत दिनों बाद</text></svg>`,
+            khichdi: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="220" viewBox="0 0 400 220"><rect width="100%" height="100%" fill="%235c3d2e"/><ellipse cx="200" cy="130" rx="90" ry="40" fill="%238e9775"/><path d="M140 120 Q200 70 260 120" fill="none" stroke="%23fff" stroke-width="4" stroke-dasharray="5,5"/><text x="185" y="140" font-size="35">🍲</text><text x="140" y="50" fill="%23ffdd55" font-size="22">Secret Plan / खिचड़ी</text></svg>`,
+            ghada: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="220" viewBox="0 0 400 220"><rect width="100%" height="100%" fill="%231a3636"/><path d="M200 60 C140 60 140 170 200 170 C260 170 260 60 200 60 Z" fill="%23cd7f32"/><circle cx="200" cy="110" r="25" fill="%2333b5e5"/><path d="M200 20 L200 50" stroke="%2333b5e5" stroke-width="6"/><text x="190" y="20" font-size="25">💧</text></svg>`,
+            chane: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="220" viewBox="0 0 400 220"><rect width="100%" height="100%" fill="%233e2723"/><circle cx="150" cy="110" r="30" fill="%23b0bec5"/><circle cx="165" cy="100" r="5" fill="black"/><circle cx="250" cy="110" r="25" fill="%23ffb300"/><text x="240" y="118" font-weight="bold">Fe</text><text x="120" y="180" fill="white" font-size="20">चबाना (Hard Work)</text></svg>`,
+            papad: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="220" viewBox="0 0 400 220"><rect width="100%" height="100%" fill="%23424242"/><circle cx="150" cy="110" r="55" fill="%23ffe082" stroke="%23ffb300" stroke-width="4"/><circle cx="130" cy="90" r="3" fill="%235d4037"/><circle cx="160" cy="120" r="4" fill="%235d4037"/><circle cx="170" cy="85" r="2" fill="%235d4037"/><path d="M250 70 L320 140 M250 140 L320 70" stroke="%23ff1744" stroke-width="8"/><text x="110" y="195" fill="white" font-size="18">बेलना (Struggle)</text></svg>`,
+            aag: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="220" viewBox="0 0 400 220"><rect width="100%" height="100%" fill="%23210101"/><path d="M150 160 Q200 40 250 160 Z" fill="%23ff3d00"/><path d="M170 160 Q200 70 230 160 Z" fill="%23ffea00"/><rect x="250" y="100" width="15" height="60" fill="%23ffb300" transform="rotate(30 250 100)"/><text x="270" y="80" font-size="30">⛽</text><text x="60" y="110" fill="white" font-size="22">घी डालना</text></svg>`,
+            haathi: `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="220" viewBox="0 0 400 220"><rect width="100%" height="100%" fill="%231a237e"/><text x="60" y="130" font-size="70">🐘</text><text x="230" y="120" font-size="25">🍃 (जीरा)</text><path d="M180 110 L220 110" stroke="white" stroke-width="3" stroke-dasharray="5"/></svg>`
+        };
+
+        const quizData = [
+            { image: svgImages['9211'], options: ["नौ दो ग्यारह होना", "पांच उंगलियां घी में होना", "अंगूठा दिखाना", "चंपत न होना"], correct: 0, points: 1000 },
+            { image: svgImages['tara'], options: ["आँखें फेर लेना", "आँखों का तारा होना", "आँखों में धूल झोंकना", "काठ का उल्लू"], correct: 1, points: 2000 },
+            { image: svgImages['bhais'], options: ["गधे को बाप बनाना", "ऊंट के मुंह में जीरा", "भैंस के आगे बीन बजाना", "हाथ कंगन को आरसी क्या"], correct: 2, points: 3000 },
+            { image: svgImages['eid'], options: ["दूज का चांद", "ईद का चांद होना", "सूरज को दीपक दिखाना", "चार चांद लगाना"], correct: 1, points: 5000 },
+            { image: svgImages['khichdi'], options: ["अपनी खिचड़ी अलग पकाना", "दाल में काला होना", "खिचड़ी पकाना (गुप्त योजना)", "लोहे के चने चबाना"], correct: 2, points: 10000 },
+            { image: svgImages['ghada'], options: ["गागर में सागर भरना", "घड़ों पानी पड़ना", "घड़े का पानी पीना", "अधजल गगरी छलकत जाए"], correct: 3, points: 20000 },
+            { image: svgImages['chane'], options: ["लोहे के चने चबाना", "दांत खट्टे करना", "नाक चने चबवाना", "चने के झाड़ पर चढ़ना"], correct: 0, points: 50000 },
+            { image: svgImages['papad'], options: ["रोटी सेकना", "पापड़ बेलना", "बाएं हाथ का खेल", "तख्ता पलटना"], correct: 1, points: 100000 },
+            { image: svgImages['aag'], options: ["आग बबूला होना", "आग में घी डालना", "दाल न गलना", "हवा से बातें करना"], correct: 1, points: 320000 },
+            { image: svgImages['haathi'], options: ["ऊंट के मुंह में जीरा", "हाथी के दांत दिखाने के", "बंदर क्या जाने अदरक का स्वाद", "चूहे के चाम से नगाड़े नहीं मढ़े जाते"], correct: 0, points: 700000 }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let isAnswered = false;
+
+        function loadQuestion() {
+            isAnswered = false;
+            const currentData = quizData[currentQuestionIndex];
+            
+            // Updates HUD layout elements
+            document.getElementById("current-q").innerText = currentQuestionIndex + 1;
+            document.getElementById("question-image").src = currentData.image;
+            
+            const optionButtons = document.querySelectorAll(".option-btn");
+            
+            optionButtons.forEach((btn, index) => {
+                btn.className = "option-btn"; // reset classes entirely
+                btn.disabled = false;
+                btn.querySelector(".opt-text").innerText = currentData.options[index];
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            if (isAnswered) return; // Ignore multiple accidental hits
+            isAnswered = true;
+
+            const currentData = quizData[currentQuestionIndex];
+            const optionButtons = document.querySelectorAll(".option-btn");
+            
+            optionButtons[selectedIndex].classList.add("selected");
+
+            // KBC dramatic reveal delay effect (600ms)
+            setTimeout(() => {
+                if (selectedIndex === currentData.correct) {
+                    optionButtons[selectedIndex].classList.remove("selected");
+                    optionButtons[selectedIndex].classList.add("correct");
+                    score += currentData.points;
+                    document.getElementById("score").innerText = score;
+                    
+                    setTimeout(() => {
+                        currentQuestionIndex++;
+                        if (currentQuestionIndex < quizData.length) {
+                            loadQuestion();
+                        } else {
+                            endGame(true);
+                        }
+                    }, 1200);
+                } else {
+                    optionButtons[selectedIndex].classList.remove("selected");
+                    optionButtons[selectedIndex].classList.add("wrong");
+                    optionButtons[currentData.correct].classList.add("correct");
+                    
+                    setTimeout(() => {
+                        endGame(false); // Wrong answer cuts game short KBC style
+                    }, 1500);
+                }
+            }, 600);
+        }
+
+        // Lifeline 1: Eliminates 2 incorrect options
+        function use5050() {
+            const currentData = quizData[currentQuestionIndex];
+            const optionButtons = document.querySelectorAll(".option-btn");
+            let removedCount = 0;
+
+            for (let i = 0; i < 4; i++) {
+                if (i !== currentData.correct && removedCount < 2) {
+                    // Randomize removal slightly or systematically clear them
+                    if (Math.random() > 0.3 || removedCount === 0) {
+                        optionButtons[i].querySelector(".opt-text").innerText = "";
+                        optionButtons[i].disabled = true;
+                        removedCount++;
+                    }
+                }
+            }
+            document.getElementById("lifeline-5050").disabled = true;
+        }
+
+        // Lifeline 2: Skips current safely to next tier
+        function useSkip() {
+            document.getElementById("lifeline-skip").disabled = true;
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                endGame(true);
+            }
+        }
+
+        function endGame(isWin) {
+            document.getElementById("quiz-view").style.display = "none";
+            document.getElementById("lifelines-container").style.display = "none";
+            document.getElementById("result-screen").style.display = "block";
+            document.getElementById("final-score").innerText = score;
+
+            const msgElement = document.getElementById("performance-msg");
+            if (isWin && score >= 1000000) {
+                msgElement.innerText = "अद्भुत! आप मुहावरों के महानायक बन चुके हैं। 🏆";
+            } else if (score > 50000) {
+                msgElement.innerText = "शानदार प्रयास! आपकी हिंदी व्याकरण पर पकड़ बेहतरीन है। ✨";
+            } else {
+                msgElement.innerText = "अच्छा प्रयास! भाषा ज्ञान बढ़ाने के लिए दोबारा प्रयास करें। 👍";
+            }
+        }
+
+        function restartGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById("score").innerText = "0";
+            document.getElementById("lifeline-5050").disabled = false;
+            document.getElementById("lifeline-skip").disabled = false;
+            document.getElementById("quiz-view").style.display = "block";
+            document.getElementById("lifelines-container").style.display = "block";
+            document.getElementById("result-screen").style.display = "none";
+            loadQuestion();
+        }
+
+        // Initialize game on load
+        window.onload = loadQuestion;
+    </script>
+</body>
+</html>
